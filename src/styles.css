@@ -28,9 +28,9 @@ button, input { font: inherit; }
 button { color: inherit; }
 
 .page-shell {
-  width: min(100% - 32px, 780px);
+  width: min(100% - 32px, 860px);
   margin-inline: auto;
-  padding: 64px 0 80px;
+  padding: 42px 0 80px;
 }
 
 .hero { text-align: center; }
@@ -44,13 +44,13 @@ button { color: inherit; }
 }
 
 h1, h2 { font-family: "Fraunces", Georgia, serif; }
-h1 { margin: 0; font-size: clamp(2.55rem, 8vw, 4.5rem); line-height: 1; letter-spacing: -0.045em; }
-.intro { margin: 18px auto 0; color: var(--muted); font-size: 1.05rem; }
+h1 { margin: 0; font-size: clamp(2.15rem, 6vw, 3.55rem); line-height: 1; letter-spacing: -0.045em; }
+.intro { margin: 12px auto 0; color: var(--muted); font-size: 1rem; }
 
-.wheel-section { display: grid; justify-items: center; margin-top: 48px; }
+.wheel-section { display: grid; justify-items: center; margin-top: 30px; }
 .wheel-wrap {
   position: relative;
-  width: min(82vw, 520px);
+  width: min(88vw, 610px);
   aspect-ratio: 1;
   filter: drop-shadow(0 22px 25px rgba(61, 42, 23, 0.18));
 }
@@ -92,10 +92,12 @@ h1 { margin: 0; font-size: clamp(2.55rem, 8vw, 4.5rem); line-height: 1; letter-s
 .spin-button:focus-visible { outline: 4px solid white; outline-offset: 4px; }
 .spin-button:disabled { cursor: wait; opacity: 0.82; }
 
-.result { min-height: 75px; margin-top: 26px; text-align: center; }
+.result { min-height: 92px; margin-top: 20px; text-align: center; }
 .result-label { display: block; color: var(--muted); font-size: 0.78rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
 .result strong { display: block; margin-top: 3px; font-family: "Fraunces", Georgia, serif; font-size: clamp(1.65rem, 5vw, 2.4rem); }
 .result.winner strong { color: var(--accent); animation: reveal 500ms ease both; }
+.remove-winner { margin-top: 9px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); background: rgba(255,255,255,.58); font-size: .76rem; font-weight: 700; cursor: pointer; }
+.remove-winner:hover { border-color: var(--accent); color: var(--accent); background: white; }
 @keyframes reveal { from { opacity: 0; transform: translateY(8px) scale(.96); } }
 
 .editor {
@@ -127,8 +129,8 @@ h2 { margin: 0; font-size: clamp(1.8rem, 5vw, 2.4rem); letter-spacing: -0.025em;
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 
 @media (max-width: 520px) {
-  .page-shell { padding-top: 42px; }
-  .wheel-wrap { width: min(92vw, 440px); }
+  .page-shell { padding-top: 30px; }
+  .wheel-wrap { width: min(94vw, 500px); }
   .editor { border-radius: 22px; }
   .add-form { grid-template-columns: 1fr; }
   .add-form button { min-height: 48px; }

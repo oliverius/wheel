@@ -16,15 +16,12 @@
     </header>
 
     <section class="wheel-section" aria-label="Random name wheel">
-      <div class="wheel-wrap" id="wheel-wrap">
-        <div class="pointer" aria-hidden="true"></div>
-        <canvas id="wheel" aria-label="Wheel containing the current names"></canvas>
-        <button class="spin-button" id="spin-button" type="button">Spin</button>
-      </div>
+      <div class="wheel-wrap" id="wheel-wrap"></div>
 
       <div class="result" id="result" role="status" aria-live="polite">
         <span class="result-label">Ready when you are</span>
         <strong id="result-name">Who will it be?</strong>
+        <button class="remove-winner" id="remove-winner" type="button" hidden>Remove from wheel</button>
       </div>
     </section>
 
@@ -49,6 +46,8 @@
     </section>
   </main>
 
+  <script src="wheel.js"></script>
+  <script src="editor.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

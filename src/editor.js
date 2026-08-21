@@ -1,37 +1,65 @@
-const EDITOR_COLOURS = ["#ef6a4c", "#f2b84b", "#48a692", "#557bb5", "#9b6bb5", "#e7859a", "#75a957", "#e89145"];
-
 class Editor {
-  constructor({ namesList, nameCount, form, input, onChange, onToggle }) {
-    Object.assign(this, { namesList, nameCount, form, input, onChange, onToggle });
+  static COLOURS = ["#ef6a4c", "#f2b84b", "#48a692", "#557bb5", "#9b6bb5", "#e7859a", "#75a957", "#e89145"];
+
+  constructor({ namesList, nameCount, form, input, onChange, onParticipationChange }) {
+    Object.assign(this, { namesList, nameCount, form, input, onChange, onParticipationChange });
     this.names = [];
     this.disabledIndices = new Set();
-    form.addEventListener("submit", (event) => {
-      event.preventDefault();
-      const name = input.value.trim();
-      if (!name) return;
-      input.value = "";
-      this.onChange([...this.names, name]);
-      input.focus();
-    });
+    this.#bindForm();
   }
 
   setNames(names, disabledIndices = new Set()) {
     this.names = [...names];
     this.disabledIndices = new Set(disabledIndices);
-    this.render();
+    this.#render();
   }
 
   getActiveParticipants() {
     return this.names
       .map((name, index) => ({
         name,
-        colour: EDITOR_COLOURS[index % EDITOR_COLOURS.length],
+        colour: Editor.COLOURS[index % Editor.COLOURS.length],
         index
       }))
       .filter(({ index }) => !this.disabledIndices.has(index));
   }
 
-  render() {
+  disableParticipant(index) {
+    this.disabledIndices.add(index);
+    this.#render();
+    this.onParticipationChange();
+  }
+
+  resetRound() {
+    this.disabledIndices.clear();
+    this.#render();
+    this.onParticipationChange();
+  }
+
+  #bindForm() {
+    this.form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const name = this.input.value.trim();
+      if (!name) {
+        return;
+      }
+      this.input.value = "";
+      this.onChange([...this.names, name]);
+      this.input.focus();
+    });
+  }
+
+  #toggleParticipant(index) {
+    if (this.disabledIndices.has(index)) {
+      this.disabledIndices.delete(index);
+    } else {
+      this.disabledIndices.add(index);
+    }
+    this.#render();
+    this.onParticipationChange();
+  }
+
+  #render() {
     this.namesList.replaceChildren();
     this.nameCount.textContent = `${this.names.length} ${this.names.length === 1 ? "name" : "names"}`;
     if (!this.names.length) {
@@ -49,14 +77,17 @@ class Editor {
       row.classList.toggle("is-disabled", isDisabled);
       const dot = document.createElement("span");
       dot.className = "colour-dot";
-      dot.style.backgroundColor = EDITOR_COLOURS[index % EDITOR_COLOURS.length];
+      dot.style.backgroundColor = Editor.COLOURS[index % Editor.COLOURS.length];
       const input = document.createElement("input");
       input.value = name;
       input.maxLength = 60;
       input.setAttribute("aria-label", `Edit ${name}`);
       input.addEventListener("change", () => {
         const value = input.value.trim();
-        if (!value) return void (input.value = name);
+        if (!value) {
+          input.value = name;
+          return;
+        }
         const updated = [...this.names];
         updated[index] = value;
         this.onChange(updated);
@@ -64,11 +95,11 @@ class Editor {
       const visibility = document.createElement("button");
       visibility.type = "button";
       visibility.className = "visibility-button";
-      visibility.textContent = "👁";
+      visibility.innerHTML = "&#128065;";
       visibility.setAttribute("aria-label", `${isDisabled ? "Include" : "Exclude"} ${name} ${isDisabled ? "in" : "from"} this round`);
       visibility.title = isDisabled ? "Include in this round" : "Exclude from this round";
       visibility.style.opacity = isDisabled ? ".45" : "1";
-      visibility.addEventListener("click", () => this.onToggle(index));
+      visibility.addEventListener("click", () => this.#toggleParticipant(index));
       const remove = document.createElement("button");
       remove.type = "button";
       remove.className = "remove-button";

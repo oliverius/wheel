@@ -1,6 +1,30 @@
-class Wheel {
-  constructor({ container, result, resultName, resultLabel, removeButton, onWinnerRemoved }) {
-    Object.assign(this, { container, result, resultName, resultLabel, removeButton, onWinnerRemoved });
+class Wheel extends EventTarget {
+  constructor({ container, result, resultName, resultLabel, removeButton }) {
+    super();
+    Object.assign(this, { container, result, resultName, resultLabel, removeButton });
+    this.participants = [];
+    this.rotation = 0;
+    this.spinning = false;
+    this.winnerIndex = null;
+    this.#renderWheel();
+  }
+
+  setParticipants(participants) {
+    this.participants = [...participants];
+    this.winnerIndex = null;
+    this.removeButton.hidden = true;
+    this.spinButton.disabled = !participants.length || this.spinning;
+    this.#draw();
+  }
+
+  showRoundWinner(name) {
+    this.resultLabel.textContent = "Last one standing — today's winner";
+    this.resultName.textContent = name;
+    this.result.classList.add("winner");
+    this.removeButton.hidden = true;
+  }
+
+  #renderWheel() {
     this.pointer = document.createElement("div");
     this.pointer.className = "pointer";
     this.pointer.setAttribute("aria-hidden", "true");
@@ -13,37 +37,27 @@ class Wheel {
     this.spinButton.textContent = "Spin";
     this.container.append(this.pointer, this.canvas, this.spinButton);
     this.context = this.canvas.getContext("2d");
-    this.participants = [];
-    this.rotation = 0;
-    this.spinning = false;
-    this.winnerIndex = null;
-    this.spinButton.addEventListener("click", () => this.spin());
-    this.removeButton.addEventListener("click", () => this.removeWinner());
+    this.spinButton.addEventListener("click", () => this.#spin());
+    this.removeButton.addEventListener("click", () => this.#removeWinner());
     if ("ResizeObserver" in window) {
-      new ResizeObserver(() => this.draw()).observe(this.canvas);
+      new ResizeObserver(() => this.#draw()).observe(this.canvas);
     } else {
-      window.addEventListener("resize", () => this.draw());
+      window.addEventListener("resize", () => this.#draw());
     }
   }
 
-  setParticipants(participants) {
-    this.participants = [...participants];
-    this.winnerIndex = null;
-    this.removeButton.hidden = true;
-    this.spinButton.disabled = !participants.length || this.spinning;
-    this.draw();
-  }
-
-  fitText(text, maxWidth, initialSize) {
+  #fitText(text, maxWidth, initialSize) {
     let size = initialSize;
     do {
       this.context.font = `700 ${size}px "DM Sans", sans-serif`;
-      if (this.context.measureText(text).width <= maxWidth) return;
+      if (this.context.measureText(text).width <= maxWidth) {
+        return;
+      }
       size -= 1;
     } while (size > 10);
   }
 
-  draw() {
+  #draw() {
     const cssSize = Math.max(280, Math.round(this.canvas.getBoundingClientRect().width));
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     this.canvas.width = cssSize * dpr;
@@ -66,7 +80,9 @@ class Wheel {
       this.context.strokeStyle = "rgba(255,255,255,.72)";
       this.context.lineWidth = 3;
       this.context.stroke();
-      if (!this.participants.length) continue;
+      if (!this.participants.length) {
+        continue;
+      }
 
       const availableWidth = Math.min(radius * 0.5, 180);
       this.context.save();
@@ -77,9 +93,11 @@ class Wheel {
       this.context.fillStyle = "#fff";
       this.context.shadowColor = "rgba(0,0,0,.16)";
       this.context.shadowBlur = 2;
-      this.fitText(this.participants[index].name, availableWidth, Math.min(20, 260 / count + 10));
+      this.#fitText(this.participants[index].name, availableWidth, Math.min(20, 260 / count + 10));
       let label = this.participants[index].name;
-      while (this.context.measureText(label).width > availableWidth && label.length > 2) label = `${label.slice(0, -2)}…`;
+      while (this.context.measureText(label).width > availableWidth && label.length > 2) {
+        label = `${label.slice(0, -2)}…`;
+      }
       this.context.fillText(label, radius * 0.84, 0);
       this.context.restore();
     }
@@ -91,17 +109,23 @@ class Wheel {
     this.context.stroke();
   }
 
-  randomIndex(max) {
-    if (!window.crypto?.getRandomValues) return Math.floor(Math.random() * max);
+  #randomIndex(max) {
+    if (!window.crypto?.getRandomValues) {
+      return Math.floor(Math.random() * max);
+    }
     const range = 0x100000000;
     const limit = range - range % max;
     const value = new Uint32Array(1);
-    do window.crypto.getRandomValues(value); while (value[0] >= limit);
+    do {
+      window.crypto.getRandomValues(value);
+    } while (value[0] >= limit);
     return value[0] % max;
   }
 
-  spin() {
-    if (this.spinning || !this.participants.length) return;
+  #spin() {
+    if (this.spinning || !this.participants.length) {
+      return;
+    }
     this.spinning = true;
     this.winnerIndex = null;
     this.spinButton.disabled = true;
@@ -109,7 +133,7 @@ class Wheel {
     this.result.classList.remove("winner");
     this.resultLabel.textContent = "Round and round…";
     this.resultName.textContent = "Good luck!";
-    const winnerIndex = this.randomIndex(this.participants.length);
+    const winnerIndex = this.#randomIndex(this.participants.length);
     const target = -winnerIndex * (360 / this.participants.length);
     const current = ((this.rotation % 360) + 360) % 360;
     const destination = ((target % 360) + 360) % 360;
@@ -127,21 +151,23 @@ class Wheel {
     }, { once: true });
   }
 
-  removeWinner() {
-    if (this.winnerIndex === null) return;
+  #removeWinner() {
+    if (this.winnerIndex === null) {
+      return;
+    }
     const index = this.winnerIndex;
+    const removedParticipant = this.participants[index];
+    const remainingParticipants = this.participants.filter((_, participantIndex) => participantIndex !== index);
     this.winnerIndex = null;
     this.removeButton.hidden = true;
     this.result.classList.remove("winner");
     this.resultLabel.textContent = "Removed from the wheel";
     this.resultName.textContent = "Spin again?";
-    this.onWinnerRemoved(index);
+    this.dispatchEvent(new CustomEvent("participantremoved", { detail: removedParticipant }));
+    if (remainingParticipants.length <= 1) {
+      const winner = remainingParticipants[0] ?? removedParticipant;
+      this.dispatchEvent(new CustomEvent("winner", { detail: winner }));
+    }
   }
 
-  showRoundWinner(name) {
-    this.resultLabel.textContent = "Last one standing — today's winner";
-    this.resultName.textContent = name;
-    this.result.classList.add("winner");
-    this.removeButton.hidden = true;
-  }
 }

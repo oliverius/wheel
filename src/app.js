@@ -15,15 +15,13 @@ function loadNames() {
 }
 
 let names = loadNames();
-let disabledIndices = new Set();
 
 const wheel = new Wheel({
   container: document.querySelector("#wheel-wrap"),
   result: document.querySelector("#result"),
   resultName: document.querySelector("#result-name"),
   resultLabel: document.querySelector("#result .result-label"),
-  removeButton: document.querySelector("#remove-winner"),
-  onWinnerRemoved: disableActiveParticipant
+  removeButton: document.querySelector("#remove-winner")
 });
 
 const editor = new Editor({
@@ -32,42 +30,28 @@ const editor = new Editor({
   form: document.querySelector("#add-form"),
   input: document.querySelector("#new-name"),
   onChange: updateNames,
-  onToggle: toggleParticipant
+  onParticipationChange: refreshWheel
+});
+
+wheel.addEventListener("participantremoved", (event) => {
+  editor.disableParticipant(event.detail.index);
+});
+
+wheel.addEventListener("winner", (event) => {
+  editor.resetRound();
+  wheel.showRoundWinner(event.detail.name);
 });
 
 function updateNames(updatedNames) {
   names = updatedNames;
-  disabledIndices = new Set();
   localStorage.setItem(STORAGE_KEY, JSON.stringify(names));
-  refreshComponents();
+  editor.setNames(names);
+  refreshWheel();
 }
 
-function refreshComponents() {
-  editor.setNames(names, disabledIndices);
+function refreshWheel() {
   wheel.setParticipants(editor.getActiveParticipants());
 }
 
-function disableActiveParticipant(activeIndex) {
-  const entries = editor.getActiveParticipants();
-  const selected = entries[activeIndex];
-  if (!selected) return;
-  disabledIndices.add(selected.index);
-  editor.setNames(names, disabledIndices);
-  const remaining = editor.getActiveParticipants();
-  if (remaining.length <= 1) {
-    const winner = remaining[0]?.name ?? selected.name;
-    disabledIndices.clear();
-    refreshComponents();
-    wheel.showRoundWinner(winner);
-    return;
-  }
-  refreshComponents();
-}
-
-function toggleParticipant(index) {
-  if (disabledIndices.has(index)) disabledIndices.delete(index);
-  else disabledIndices.add(index);
-  refreshComponents();
-}
-
-refreshComponents();
+editor.setNames(names);
+refreshWheel();

@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f7f3ed">
+  <title>Oliverius Wheel</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="page-shell">
+    <header class="hero">
+      <p class="eyebrow">A little help deciding</p>
+      <h1>Let the wheel choose.</h1>
+      <p class="intro">Add your names, press spin, and leave the rest to chance.</p>
+    </header>
+
+    <section class="wheel-section" aria-label="Random name wheel">
+      <div class="wheel-wrap" id="wheel-wrap">
+        <div class="pointer" aria-hidden="true"></div>
+        <canvas id="wheel" aria-label="Wheel containing the current names"></canvas>
+        <button class="spin-button" id="spin-button" type="button">Spin</button>
+      </div>
+
+      <div class="result" id="result" role="status" aria-live="polite">
+        <span class="result-label">Ready when you are</span>
+        <strong id="result-name">Who will it be?</strong>
+      </div>
+    </section>
+
+    <section class="editor" aria-labelledby="editor-title">
+      <div class="editor-heading">
+        <div>
+          <p class="eyebrow">Make it yours</p>
+          <h2 id="editor-title">Edit the wheel</h2>
+        </div>
+        <span class="count" id="name-count">0 names</span>
+      </div>
+
+      <div class="names-list" id="names-list"></div>
+
+      <form class="add-form" id="add-form">
+        <label class="sr-only" for="new-name">Add a name</label>
+        <input id="new-name" name="name" type="text" maxlength="60" placeholder="Type another name…" autocomplete="off">
+        <button type="submit">Add name</button>
+      </form>
+
+      <p class="storage-note">Your list is saved automatically in this browser.</p>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

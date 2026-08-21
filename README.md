@@ -2,6 +2,8 @@
 
 A simple browser-based wheel for choosing a name at random.
 
+[![Open live demo](https://img.shields.io/badge/Open-Live_Demo-8b5e3c?style=for-the-badge)](https://oliverius.github.io/wheel/)
+
 I use this during daily stand-ups with a remote team. Instead of asking people to raise their hands or deciding who speaks next, we spin the wheel and let it choose the next person.
 
 ## Features

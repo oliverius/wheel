@@ -139,6 +139,13 @@ class Wheel {
     this.resultName.textContent = "Spin again?";
     this.onWinnerRemoved(index);
   }
+
+  showRoundWinner(name) {
+    this.resultLabel.textContent = "Last one standing — today's winner";
+    this.resultName.textContent = name;
+    this.result.classList.add("winner");
+    this.removeButton.hidden = true;
+  }
 }
 
 Wheel.COLOURS = WHEEL_COLOURS;

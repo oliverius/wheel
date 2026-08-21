@@ -1,7 +1,8 @@
 class Editor {
-  constructor({ namesList, nameCount, form, input, onChange }) {
-    Object.assign(this, { namesList, nameCount, form, input, onChange });
+  constructor({ namesList, nameCount, form, input, onChange, onToggle }) {
+    Object.assign(this, { namesList, nameCount, form, input, onChange, onToggle });
     this.names = [];
+    this.disabledIndices = new Set();
     form.addEventListener("submit", (event) => {
       event.preventDefault();
       const name = input.value.trim();
@@ -12,8 +13,9 @@ class Editor {
     });
   }
 
-  setNames(names) {
+  setNames(names, disabledIndices = new Set()) {
     this.names = [...names];
+    this.disabledIndices = new Set(disabledIndices);
     this.render();
   }
 
@@ -31,6 +33,8 @@ class Editor {
     this.names.forEach((name, index) => {
       const row = document.createElement("div");
       row.className = "name-row";
+      const isDisabled = this.disabledIndices.has(index);
+      row.classList.toggle("is-disabled", isDisabled);
       const dot = document.createElement("span");
       dot.className = "colour-dot";
       dot.style.backgroundColor = Wheel.COLOURS[index % Wheel.COLOURS.length];
@@ -45,13 +49,21 @@ class Editor {
         updated[index] = value;
         this.onChange(updated);
       });
+      const visibility = document.createElement("button");
+      visibility.type = "button";
+      visibility.className = "visibility-button";
+      visibility.textContent = "👁";
+      visibility.setAttribute("aria-label", `${isDisabled ? "Include" : "Exclude"} ${name} ${isDisabled ? "in" : "from"} this round`);
+      visibility.title = isDisabled ? "Include in this round" : "Exclude from this round";
+      visibility.style.opacity = isDisabled ? ".45" : "1";
+      visibility.addEventListener("click", () => this.onToggle(index));
       const remove = document.createElement("button");
       remove.type = "button";
       remove.className = "remove-button";
       remove.innerHTML = "&times;";
       remove.setAttribute("aria-label", `Remove ${name}`);
       remove.addEventListener("click", () => this.onChange(this.names.filter((_, itemIndex) => itemIndex !== index)));
-      row.append(dot, input, remove);
+      row.append(dot, input, visibility, remove);
       this.namesList.append(row);
     });
   }

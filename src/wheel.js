@@ -1,5 +1,3 @@
-const WHEEL_COLOURS = ["#ef6a4c", "#f2b84b", "#48a692", "#557bb5", "#9b6bb5", "#e7859a", "#75a957", "#e89145"];
-
 class Wheel {
   constructor({ container, result, resultName, resultLabel, removeButton, onWinnerRemoved }) {
     Object.assign(this, { container, result, resultName, resultLabel, removeButton, onWinnerRemoved });
@@ -15,7 +13,7 @@ class Wheel {
     this.spinButton.textContent = "Spin";
     this.container.append(this.pointer, this.canvas, this.spinButton);
     this.context = this.canvas.getContext("2d");
-    this.names = [];
+    this.participants = [];
     this.rotation = 0;
     this.spinning = false;
     this.winnerIndex = null;
@@ -28,11 +26,11 @@ class Wheel {
     }
   }
 
-  setNames(names) {
-    this.names = [...names];
+  setParticipants(participants) {
+    this.participants = [...participants];
     this.winnerIndex = null;
     this.removeButton.hidden = true;
-    this.spinButton.disabled = !names.length || this.spinning;
+    this.spinButton.disabled = !participants.length || this.spinning;
     this.draw();
   }
 
@@ -53,7 +51,7 @@ class Wheel {
     this.context.setTransform(dpr, 0, 0, dpr, 0, 0);
     const center = cssSize / 2;
     const radius = center - 6;
-    const count = Math.max(this.names.length, 1);
+    const count = Math.max(this.participants.length, 1);
     const arc = Math.PI * 2 / count;
     this.context.clearRect(0, 0, cssSize, cssSize);
 
@@ -63,12 +61,12 @@ class Wheel {
       this.context.moveTo(center, center);
       this.context.arc(center, center, radius, start, start + arc);
       this.context.closePath();
-      this.context.fillStyle = this.names.length ? WHEEL_COLOURS[index % WHEEL_COLOURS.length] : "#d9d2c8";
+      this.context.fillStyle = this.participants.length ? this.participants[index].colour : "#d9d2c8";
       this.context.fill();
       this.context.strokeStyle = "rgba(255,255,255,.72)";
       this.context.lineWidth = 3;
       this.context.stroke();
-      if (!this.names.length) continue;
+      if (!this.participants.length) continue;
 
       const availableWidth = Math.min(radius * 0.5, 180);
       this.context.save();
@@ -79,8 +77,8 @@ class Wheel {
       this.context.fillStyle = "#fff";
       this.context.shadowColor = "rgba(0,0,0,.16)";
       this.context.shadowBlur = 2;
-      this.fitText(this.names[index], availableWidth, Math.min(20, 260 / count + 10));
-      let label = this.names[index];
+      this.fitText(this.participants[index].name, availableWidth, Math.min(20, 260 / count + 10));
+      let label = this.participants[index].name;
       while (this.context.measureText(label).width > availableWidth && label.length > 2) label = `${label.slice(0, -2)}…`;
       this.context.fillText(label, radius * 0.84, 0);
       this.context.restore();
@@ -103,7 +101,7 @@ class Wheel {
   }
 
   spin() {
-    if (this.spinning || !this.names.length) return;
+    if (this.spinning || !this.participants.length) return;
     this.spinning = true;
     this.winnerIndex = null;
     this.spinButton.disabled = true;
@@ -111,8 +109,8 @@ class Wheel {
     this.result.classList.remove("winner");
     this.resultLabel.textContent = "Round and round…";
     this.resultName.textContent = "Good luck!";
-    const winnerIndex = this.randomIndex(this.names.length);
-    const target = -winnerIndex * (360 / this.names.length);
+    const winnerIndex = this.randomIndex(this.participants.length);
+    const target = -winnerIndex * (360 / this.participants.length);
     const current = ((this.rotation % 360) + 360) % 360;
     const destination = ((target % 360) + 360) % 360;
     this.rotation += 5 * 360 + (destination - current + 360) % 360;
@@ -123,7 +121,7 @@ class Wheel {
       this.winnerIndex = winnerIndex;
       this.spinButton.disabled = false;
       this.resultLabel.textContent = "The wheel chose";
-      this.resultName.textContent = this.names[winnerIndex];
+      this.resultName.textContent = this.participants[winnerIndex].name;
       this.removeButton.hidden = false;
       this.result.classList.add("winner");
     }, { once: true });
@@ -147,5 +145,3 @@ class Wheel {
     this.removeButton.hidden = true;
   }
 }
-
-Wheel.COLOURS = WHEEL_COLOURS;

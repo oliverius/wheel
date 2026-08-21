@@ -42,21 +42,18 @@ function updateNames(updatedNames) {
   refreshComponents();
 }
 
-function activeEntries() {
-  return names.map((name, index) => ({ name, index })).filter(({ index }) => !disabledIndices.has(index));
-}
-
 function refreshComponents() {
-  wheel.setNames(activeEntries().map(({ name }) => name));
   editor.setNames(names, disabledIndices);
+  wheel.setParticipants(editor.getActiveParticipants());
 }
 
 function disableActiveParticipant(activeIndex) {
-  const entries = activeEntries();
+  const entries = editor.getActiveParticipants();
   const selected = entries[activeIndex];
   if (!selected) return;
   disabledIndices.add(selected.index);
-  const remaining = activeEntries();
+  editor.setNames(names, disabledIndices);
+  const remaining = editor.getActiveParticipants();
   if (remaining.length <= 1) {
     const winner = remaining[0]?.name ?? selected.name;
     disabledIndices.clear();

@@ -1,3 +1,5 @@
+const EDITOR_COLOURS = ["#ef6a4c", "#f2b84b", "#48a692", "#557bb5", "#9b6bb5", "#e7859a", "#75a957", "#e89145"];
+
 class Editor {
   constructor({ namesList, nameCount, form, input, onChange, onToggle }) {
     Object.assign(this, { namesList, nameCount, form, input, onChange, onToggle });
@@ -19,6 +21,16 @@ class Editor {
     this.render();
   }
 
+  getActiveParticipants() {
+    return this.names
+      .map((name, index) => ({
+        name,
+        colour: EDITOR_COLOURS[index % EDITOR_COLOURS.length],
+        index
+      }))
+      .filter(({ index }) => !this.disabledIndices.has(index));
+  }
+
   render() {
     this.namesList.replaceChildren();
     this.nameCount.textContent = `${this.names.length} ${this.names.length === 1 ? "name" : "names"}`;
@@ -37,7 +49,7 @@ class Editor {
       row.classList.toggle("is-disabled", isDisabled);
       const dot = document.createElement("span");
       dot.className = "colour-dot";
-      dot.style.backgroundColor = Wheel.COLOURS[index % Wheel.COLOURS.length];
+      dot.style.backgroundColor = EDITOR_COLOURS[index % EDITOR_COLOURS.length];
       const input = document.createElement("input");
       input.value = name;
       input.maxLength = 60;

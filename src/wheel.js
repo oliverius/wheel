@@ -122,6 +122,33 @@ class Wheel extends EventTarget {
     return value[0] % max;
   }
 
+  #getPointerSegment() {
+    const transform = getComputedStyle(this.canvas).transform;
+    const matrix = new DOMMatrixReadOnly(transform === "none" ? undefined : transform);
+    const rotation = Math.atan2(matrix.b, matrix.a) * 180 / Math.PI;
+    const segmentSize = 360 / this.participants.length;
+    return ((Math.round(-rotation / segmentSize) % this.participants.length) + this.participants.length) % this.participants.length;
+  }
+
+  #trackSegmentChanges() {
+    let previousIndex = this.#getPointerSegment();
+
+    const checkSegment = () => {
+      if (!this.spinning) {
+        return;
+      }
+
+      const index = this.#getPointerSegment();
+      if (index !== previousIndex) {
+        previousIndex = index;
+        this.dispatchEvent(new CustomEvent("segmentchange", { detail: { index } }));
+      }
+      requestAnimationFrame(checkSegment);
+    };
+
+    requestAnimationFrame(checkSegment);
+  }
+
   #spin() {
     if (this.spinning || !this.participants.length) {
       return;
@@ -140,6 +167,9 @@ class Wheel extends EventTarget {
     this.rotation += 5 * 360 + (destination - current + 360) % 360;
     this.canvas.style.transition = "transform 4.8s cubic-bezier(.12,.68,.16,1)";
     this.canvas.style.transform = `rotate(${this.rotation}deg)`;
+    if (this.participants.length > 1) {
+      this.#trackSegmentChanges();
+    }
     this.canvas.addEventListener("transitionend", () => {
       this.spinning = false;
       this.winnerIndex = winnerIndex;

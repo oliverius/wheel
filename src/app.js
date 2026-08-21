@@ -3,6 +3,9 @@ const DEFAULT_NAMES = ["Alice", "Bob", "Charlie", "Diana", "Eve", "Frank"];
 const boundarySound = new Audio("media/audio/ball.mp3");
 boundarySound.preload = "auto";
 boundarySound.volume = 0.5;
+const fanfareSound = new Audio("media/audio/fanfare.mp3");
+fanfareSound.preload = "auto";
+fanfareSound.volume = 0.5;
 
 function loadNames() {
   try {
@@ -43,6 +46,8 @@ wheel.addEventListener("participantremoved", (event) => {
 wheel.addEventListener("winner", (event) => {
   editor.resetRound();
   wheel.showRoundWinner(event.detail.name);
+  fanfareSound.currentTime = 0;
+  fanfareSound.play().catch(() => {});
 });
 
 wheel.addEventListener("segmentchange", () => {

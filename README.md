@@ -12,6 +12,7 @@ I use this during daily stand-ups with a remote team. Instead of asking people t
 - Continue until only the final winner remains.
 - Save the list of names automatically in the browser.
 - Play a short sound whenever the pointer crosses into another segment.
+- Play a fanfare when only the final participant remains.
 
 ## Running locally
 
@@ -43,7 +44,7 @@ The boundary sound is stored at:
 src/media/audio/ball.mp3
 ```
 
-`app.js` listens for the wheel's `segmentchange` event and plays the sound. This keeps audio concerns separate from the wheel's animation and selection logic.
+`app.js` listens for the wheel's `segmentchange` event and plays the boundary sound. When only one participant remains, the wheel raises `winner` and the app plays `fanfare.mp3` once. This keeps audio concerns separate from the wheel's animation and selection logic.
 
 For short sound effects, MP3 is a good default because it is compact and widely supported. WAV can also be used when file size is unimportant and uncompressed audio is preferred. If the filename or format is changed, update the path near the top of `src/app.js`:
 
@@ -71,6 +72,9 @@ src/
   media/
     audio/
       ball.mp3        Segment-boundary sound
+      fanfare.mp3     Final-winner sound
+    icons/
+      wheel.ico       Browser tab icon
 ```
 
 This project uses plain HTML, CSS, and JavaScript and does not require a build step.

@@ -75,7 +75,7 @@ src/
     audio/
       ball.mp3        Segment-boundary sound
       fanfare.mp3     Final-winner sound
-    icons/
+    favicon/
       wheel.ico       Browser tab icon
 ```
 

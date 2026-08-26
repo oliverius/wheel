@@ -27,6 +27,24 @@ body {
 button, input { font: inherit; }
 button { color: inherit; }
 
+.github-link {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  color: var(--ink);
+  background: var(--card);
+  transition: color 180ms ease, border-color 180ms ease, transform 180ms ease;
+}
+.github-link:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
+.github-link:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.github-link svg { width: 23px; height: 23px; }
+
 .page-shell {
   width: min(100% - 32px, 860px);
   margin-inline: auto;
@@ -133,6 +151,7 @@ h2 { margin: 0; font-size: clamp(1.8rem, 5vw, 2.4rem); letter-spacing: -0.025em;
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 
 @media (max-width: 520px) {
+  .github-link { top: 16px; right: 16px; width: 38px; height: 38px; }
   .page-shell { padding-top: 30px; }
   .wheel-wrap { width: min(94vw, 500px); }
   .editor { border-radius: 22px; }

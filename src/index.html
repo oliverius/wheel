@@ -45,10 +45,16 @@
     <section class="editor" aria-labelledby="editor-title">
       <div class="editor-heading">
         <div>
-          <p class="eyebrow">Make it yours</p>
           <h2 id="editor-title">Edit the wheel</h2>
         </div>
-        <span class="count" id="name-count">0 names</span>
+        <div class="editor-controls">
+          <span class="count" id="name-count">0 names</span>
+          <button class="all-visible-button" id="all-visible" type="button" disabled>All visible</button>
+          <label class="speech-toggle">
+            <input id="speak-names" type="checkbox">
+            <span>Speak names</span>
+          </label>
+        </div>
       </div>
 
       <div class="names-list" id="names-list"></div>

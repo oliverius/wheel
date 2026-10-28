@@ -1,4 +1,6 @@
 const STORAGE_KEY = "oliverius.wheel";
+const DISABLED_KEY = `${STORAGE_KEY}.disabled`;
+const SPEECH_KEY = `${STORAGE_KEY}.speech`;
 const DEFAULT_NAMES = ["Alice", "Bob", "Charlie", "Diana", "Eve", "Frank"];
 const boundarySound = new Audio("media/audio/ball.mp3");
 boundarySound.preload = "auto";
@@ -21,6 +23,25 @@ function loadNames() {
 }
 
 let names = loadNames();
+const speechToggle = document.querySelector("#speak-names");
+const speechAvailable = "speechSynthesis" in window && "SpeechSynthesisUtterance" in window;
+speechToggle.checked = localStorage.getItem(SPEECH_KEY) === "true";
+speechToggle.closest("label").hidden = !speechAvailable;
+speechToggle.addEventListener("change", () => {
+  localStorage.setItem(SPEECH_KEY, String(speechToggle.checked));
+});
+
+function loadDisabledIndices(nameCount) {
+  try {
+    const stored = JSON.parse(localStorage.getItem(DISABLED_KEY));
+    if (Array.isArray(stored)) {
+      return new Set(stored.filter((index) => Number.isInteger(index) && index >= 0 && index < nameCount));
+    }
+  } catch (error) {
+    console.warn("The saved participant visibility could not be read.", error);
+  }
+  return new Set();
+}
 
 const wheel = new Wheel({
   container: document.querySelector("#wheel-wrap"),
@@ -33,10 +54,14 @@ const wheel = new Wheel({
 const editor = new Editor({
   namesList: document.querySelector("#names-list"),
   nameCount: document.querySelector("#name-count"),
+  allVisibleButton: document.querySelector("#all-visible"),
   form: document.querySelector("#add-form"),
   input: document.querySelector("#new-name"),
   onChange: updateNames,
-  onParticipationChange: refreshWheel
+  onParticipationChange: () => {
+    localStorage.setItem(DISABLED_KEY, JSON.stringify([...editor.getDisabledIndices()]));
+    refreshWheel();
+  }
 });
 
 wheel.addEventListener("participantremoved", (event) => {
@@ -47,7 +72,12 @@ wheel.addEventListener("winner", (event) => {
   editor.resetRound();
   wheel.showRoundWinner(event.detail.name);
   fanfareSound.currentTime = 0;
-  fanfareSound.play().catch(() => {});
+  const speakWinner = () => speakName(event.detail.name);
+  fanfareSound.addEventListener("ended", speakWinner, { once: true });
+  fanfareSound.play().catch(() => {
+    fanfareSound.removeEventListener("ended", speakWinner);
+    speakWinner();
+  });
 });
 
 wheel.addEventListener("segmentchange", () => {
@@ -55,10 +85,23 @@ wheel.addEventListener("segmentchange", () => {
   boundarySound.play().catch(() => {});
 });
 
-function updateNames(updatedNames) {
+wheel.addEventListener("selection", (event) => {
+  speakName(event.detail.name);
+});
+
+function speakName(name) {
+  if (!speechAvailable || !speechToggle.checked) {
+    return;
+  }
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(new SpeechSynthesisUtterance(name));
+}
+
+function updateNames(updatedNames, disabledIndices = editor.getDisabledIndices()) {
   names = updatedNames;
   localStorage.setItem(STORAGE_KEY, JSON.stringify(names));
-  editor.setNames(names);
+  editor.setNames(names, disabledIndices);
+  localStorage.setItem(DISABLED_KEY, JSON.stringify([...editor.getDisabledIndices()]));
   refreshWheel();
 }
 
@@ -66,5 +109,5 @@ function refreshWheel() {
   wheel.setParticipants(editor.getActiveParticipants());
 }
 
-editor.setNames(names);
+editor.setNames(names, loadDisabledIndices(names.length));
 refreshWheel();

@@ -178,6 +178,7 @@ class Wheel extends EventTarget {
       this.resultName.textContent = this.participants[winnerIndex].name;
       this.removeButton.hidden = false;
       this.result.classList.add("winner");
+      this.dispatchEvent(new CustomEvent("selection", { detail: { name: this.participants[winnerIndex].name } }));
     }, { once: true });
   }
 

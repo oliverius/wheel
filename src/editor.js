@@ -1,5 +1,5 @@
 class Editor {
-  static COLOURS = ["#ef6a4c", "#f2b84b", "#48a692", "#557bb5", "#9b6bb5", "#e7859a", "#75a957", "#e89145"];
+  static COLOURS = ["#ef6a4c", "#f2b84b", "#48a692", "#557bb5", "#9b6bb5", "#e7859a", "#75a957", "#e89145", "#c65f74", "#4d8c68", "#6d79b8", "#bd8054"];
 
   constructor({ namesList, nameCount, form, input, onChange, onParticipationChange }) {
     Object.assign(this, { namesList, nameCount, form, input, onChange, onParticipationChange });
